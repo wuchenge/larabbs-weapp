@@ -2,7 +2,7 @@
  * @Author: wuchenge
  * @Date:   2018-11-15 17:27:00
  * @Last Modified by:   wuchenge
- * @Last Modified time: 2018-11-15 17:27:18
+ * @Last Modified time: 2018-11-15 17:55:38
  */
 
 import wepy from 'wepy'
@@ -23,6 +23,52 @@ export default class ReplyMixin extends wepy.mixin {
     // 当前页数
     page: 1
   }
+
+  methods = {
+    // 删除回复
+    async deleteReply(topicId, replyId) {
+      // 确认是否删除
+      let res = await wepy.showModal({
+        title: '确认删除',
+        content: '您确认删除该回复吗',
+        confirmText: '删除',
+        cancelText: '取消'
+      })
+
+      // 点击取消后返回
+      if (!res.confirm) {
+        return
+      }
+      try {
+        // 调用接口删除回复
+        let deleteResponse = await api.authRequest({
+          url: 'topics/' + topicId + '/replies/' + replyId,
+          method: 'DELETE'
+        })
+
+        // 删除成功
+        if (deleteResponse.statusCode === 204) {
+          wepy.showToast({
+            title: '删除成功',
+            icon: 'success',
+            duration: 2000
+          })
+          // 将删除了的回复移除
+          this.replies = this.replies.filter((reply) => reply.id !== replyId)
+          this.$apply()
+        }
+
+        return deleteResponse
+      } catch (err) {
+        console.log(err)
+        wepy.showModal({
+          title: '提示',
+          content: '服务器错误，请联系管理员'
+        })
+      }
+    }
+  }
+
   // 获取话题回复
   async getReplies(reset = false) {
     try {
@@ -37,6 +83,14 @@ export default class ReplyMixin extends wepy.mixin {
 
       if (repliesResponse.statusCode === 200) {
         let replies = repliesResponse.data.data
+
+        // 获取当前用户
+        let user = await this.$parent.getCurrentUser()
+        replies.forEach((reply) => {
+          // 控制是否可以删除
+          reply.can_delete = this.canDelete(user, reply)
+          reply.created_at_diff = util.diffForHumans(reply.created_at)
+        })
 
         // 格式化回复创建时间
         replies.forEach(function(reply) {
@@ -63,6 +117,15 @@ export default class ReplyMixin extends wepy.mixin {
       })
     }
   }
+
+  canDelete(user, reply) {
+    if (!user) {
+      return false
+    }
+
+    return (reply.user_id === user.id)
+  }
+
   async onPullDownRefresh() {
     this.noMoreData = false
     this.page = 1
