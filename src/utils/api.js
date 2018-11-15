@@ -2,13 +2,36 @@
  * @Author: wuchenge
  * @Date:   2018-11-14 16:46:13
  * @Last Modified by:   wuchenge
- * @Last Modified time: 2018-11-14 17:03:06
+ * @Last Modified time: 2018-11-15 16:32:50
  */
 
 import wepy from 'wepy'
 
 // 服务器接口地址
 const host = 'http://larabbs.test/api'
+
+const updateFile = async (options = {}) => {
+  // 显示loading
+  wepy.showLoading({ title: '上传中' })
+
+  // 获取 token
+  let accessToken = await getToken()
+
+  // 拼接url
+  options.url = host + '/' + options.url
+  let header = options.header || {}
+  // 将 token 设置在 header 中
+  header.Authorization = 'Bearer ' + accessToken
+  options.header = header
+
+  // 上传文件
+  let response = await wepy.uploadFile(options)
+
+  // 隐藏 loading
+  wepy.hideLoading()
+
+  return response
+}
 
 // 普通请求
 const request = async (options, showLoading = true) => {
@@ -155,5 +178,6 @@ export default {
   authRequest,
   refreshToken,
   login,
-  logout
+  logout,
+  updateFile
 }
