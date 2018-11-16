@@ -2,7 +2,7 @@
  * @Author: wuchenge
  * @Date:   2018-11-15 17:27:00
  * @Last Modified by:   wuchenge
- * @Last Modified time: 2018-11-15 17:55:38
+ * @Last Modified time: 2018-11-16 15:23:40
  */
 
 import wepy from 'wepy'
@@ -123,7 +123,8 @@ export default class ReplyMixin extends wepy.mixin {
       return false
     }
 
-    return (reply.user_id === user.id)
+    // 用户未回复发布者 或 有管理内容权限
+    return (reply.user_id === user.id) || this.$parent.can('manage_contents')
   }
 
   async onPullDownRefresh() {
