@@ -41,6 +41,13 @@ module.exports = {
     }
   },
   plugins: {
+    replace: {
+      filter: /\.js$/,
+      config: {
+        find: /__BASE_URL__/g,
+        replace: prod ? "'https://bbs.wuchenge.com/api'" : "'http://larabbs.test/api'"
+      }
+    }
   },
   appConfig: {
     noPromiseAPI: ['createSelectorQuery']
@@ -56,8 +63,7 @@ if (prod) {
   module.exports.plugins = {
     uglifyjs: {
       filter: /\.js$/,
-      config: {
-      }
+      config: {}
     },
     imagemin: {
       filter: /\.(jpg|png|jpeg)$/,
@@ -68,6 +74,13 @@ if (prod) {
         png: {
           quality: 80
         }
+      }
+    },
+    replace: {
+      filter: /\.js$/,
+      config: {
+        find: /__BASE_URL__/g,
+        replace: prod ? "'https://bbs.wuchenge.com/api'" : "'http://larabbs.test/api'"
       }
     }
   }

@@ -2,13 +2,13 @@
  * @Author: wuchenge
  * @Date:   2018-11-14 16:46:13
  * @Last Modified by:   wuchenge
- * @Last Modified time: 2018-11-15 16:32:50
+ * @Last Modified time: 2018-11-16 15:28:33
  */
 
 import wepy from 'wepy'
 
 // 服务器接口地址
-const host = 'http://larabbs.test/api'
+const host = __BASE_URL__
 
 const updateFile = async (options = {}) => {
   // 显示loading
